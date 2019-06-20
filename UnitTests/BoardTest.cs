@@ -36,6 +36,16 @@ namespace UnitTests
 			Assert.AreEqual(board.CanRemoveBall(1,2,1), false);
 		}
 
+		[Test]
+		public void TestCanRemoveBallOnEdgeUncovered()
+		{
+			var board = new Board(4);
+			board.Set(1, 2, 1, State.Black);
+
+			Assert.AreEqual(board.CanRemoveBall(1, 2, 1), true);
+		}
+
+		//wow, writing these is really boring
 
 
 	}
