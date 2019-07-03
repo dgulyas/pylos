@@ -24,23 +24,23 @@ namespace BallPyramid
 			ClearBoard();
 		}
 
-		public bool CanPlaceBall(int level, int x, int y)
+		public bool CanPlaceBall(Location loc)
 		{
 			//A ball can be placed in a spot if it and the 4 spots below are not empty
-			if (Get(level, x, y) != State.Empty)
+			if (Get(loc) != State.Empty)
 			{
 				return false;
 			}
 
-			if (level == 0)
+			if (loc.Level == 0)
 			{
 				return true;
 			}
 
-			var levelBelow = level - 1;
+			var levelBelow = loc.Level - 1;
 
-			return Get(levelBelow, x, y) != State.Empty && Get(levelBelow,x + 1, y) != State.Empty &&
-			       Get(levelBelow,x, y + 1) != State.Empty && Get(levelBelow,x + 1, y + 1) != State.Empty;
+			return Get(loc.ModLevel(-1)) != State.Empty && Get(loc.ModLevel(-1).ModX(1)) != State.Empty &&
+			       Get(loc.ModLevel(-1).ModY(1)) != State.Empty && Get(loc.ModLevel(-1).ModX(1).ModY(1)) != State.Empty;
 		}
 
 		public void ClearBoard()
@@ -57,58 +57,59 @@ namespace BallPyramid
 			}
 		}
 
-		public bool CanRemoveBall(int level, int x, int y)
+		public bool CanRemoveBall(Location loc)
 		{
 			//a ball can be removed from a space if there's a ball there and there aren't any balls in the 4 spots above it.
 
-			if (Get(level, x, y) == State.Empty) return false;
+			if (Get(loc) == State.Empty) return false;
 
-			if (IsValidSpace(level + 1, x, y) && Get(level+1, x, y) != State.Empty) return false;
-			if (IsValidSpace(level + 1, x - 1, y) && Get(level+1, x - 1, y) != State.Empty) return false;
-			if (IsValidSpace(level + 1, x, y - 1) && Get(level+1, x, y - 1) != State.Empty) return false;
-			if (IsValidSpace(level + 1, x - 1, y - 1) && Get(level+1, x - 1, y - 1) != State.Empty) return false;
+			if (IsValidSpace(loc.ModLevel(1)) && Get(loc.ModLevel(1)) != State.Empty) return false;
+			if (IsValidSpace(loc.ModLevel(1).ModX(-1)) && Get(loc.ModLevel(1).ModX(-1)) != State.Empty) return false;
+			if (IsValidSpace(loc.ModLevel(1).ModY(-1)) && Get(loc.ModLevel(1).ModY(-1)) != State.Empty) return false;
+			if (IsValidSpace(loc.ModLevel(1).ModX(-1).ModY(-1)) && Get(loc.ModLevel(1).ModX(-1).ModY(-1)) != State.Empty) return false;
 
 			return true;
 		}
 
-		public bool IsValidSpace(int level, int x, int y)
+		public bool IsValidSpace(Location l)
 		{
-			if (level > Levels.Count - 1) return false; //space is above top level
-			if (level < 0) return false; //space is below bottom level
-			if (x < 0 || y < 0) return false;
+			if (l.Level > Levels.Count - 1) return false; //space is above top level
+			if (l.Level < 0) return false; //space is below bottom level
+			if (l.X < 0 || l.Y < 0) return false;
 			//
-			if (x + level > Levels.First().GetLength(0) - 1 || y + level > Levels.First().GetLength(0) - 1) return false;
+			if (l.X + l.Level > Levels.First().GetLength(0) - 1 || l.Y + l.Level > Levels.First().GetLength(0) - 1) return false;
 
 			return true;
 		}
 
-		public State Get(int level, int x, int y)
+		public State Get(Location l)
 		{
-			return Levels[level][x, y];
+			return Levels[l.Level][l.X, l.Y];
 		}
 
-		public void Set(int level, int x, int y, State value)
+		public void Set(Location l, State value)
 		{
-			Levels[level][x, y] = value;
+			Levels[l.Level][l.X, l.Y] = value;
 		}
 
 		public State GetWinner()
 		{
-			return Get(Levels.Count - 1, 0, 0);
+			return Get(new Location{Level = Levels.Count - 1, X = 0, Y = 0});
 		}
 
-		public List<(int, int, int)> GetValidMoves()
+		public List<Location> GetValidMoves()
 		{
-			var validMoves = new List<(int, int, int)>();
+			var validMoves = new List<Location>();
 			for (int level = 0; level < Levels.Count; level++)
 			{
 				for (int i = 0; i < Levels[level].GetLength(0); i++)
 				{
 					for (int j = 0; j < Levels[level].GetLength(1); j++)
 					{
-						if (CanPlaceBall(level, i, j))
+						var loc = new Location {Level = level, X = i, Y = j};
+						if (CanPlaceBall(loc))
 						{
-							validMoves.Add((level, i, j));
+							validMoves.Add(loc);
 						}
 					}
 				}

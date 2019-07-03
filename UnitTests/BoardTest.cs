@@ -23,26 +23,32 @@ namespace UnitTests
 		public void TestIsValidSpace(int level, int x, int y, bool inPyramid)
 		{
 			var board = new Board(4);
-			Assert.AreEqual(board.IsValidSpace(level,x,y), inPyramid);
+			var loc = new Location{Level = level, X = x, Y = y};
+			Assert.AreEqual(board.IsValidSpace(loc), inPyramid);
 		}
 
 		[Test]
 		public void TestCanRemoveBallOnEdgeCovered()
 		{
 			var board = new Board(4);
-			board.Set(1, 2, 1, State.Black);
-			board.Set(2, 1, 1, State.Black);
 
-			Assert.AreEqual(board.CanRemoveBall(1,2,1), false);
+			var loc = new Location {Level = 1, X = 2, Y = 1};
+			var locationAboveLoc = new Location {Level = 2, X = 1, Y = 1};
+
+			board.Set(loc, State.Black);
+			board.Set(locationAboveLoc, State.Black);
+
+			Assert.AreEqual(board.CanRemoveBall(loc), false);
 		}
 
 		[Test]
 		public void TestCanRemoveBallOnEdgeUncovered()
 		{
 			var board = new Board(4);
-			board.Set(1, 2, 1, State.Black);
+			var loc = new Location { Level = 1, X = 2, Y = 1 };
+			board.Set(loc, State.Black);
 
-			Assert.AreEqual(board.CanRemoveBall(1, 2, 1), true);
+			Assert.AreEqual(board.CanRemoveBall(loc), true);
 		}
 
 		//wow, writing these is really boring
